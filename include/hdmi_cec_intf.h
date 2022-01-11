@@ -455,7 +455,15 @@ typedef struct {
   hdmi_cec_operand_t operand;
 } hdmi_cec_message_t;
 
+typedef struct {
+    int event;
+    int data;
+} cec_app_event_t;
+
 typedef void (*hdmi_cec_callback)(hdmi_cec_message_t* cmd, void* pdata);
+
+typedef void (*app_event_callback)(cec_app_event_t* event, void* pdata);
+
 
 struct HDMI_CEC_Intf {
   const char* name;
@@ -486,6 +494,9 @@ struct HDMI_CEC_Intf {
   \retval 0:success, others: failure.
   */
   int (*setCallback)(struct HDMI_CEC_Intf* dev, hdmi_cec_callback cec_callback, void* pdata);
+
+  int (*setAppCallback)(struct HDMI_CEC_Intf* dev, app_event_callback cec_callback, void* pdata);
+  int (*isActive)(struct HDMI_CEC_Intf* dev);
 
   /**
   \brief  set hdmi physical address.
