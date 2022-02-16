@@ -476,7 +476,7 @@ struct HDMI_CEC_Intf {
   \param[in] struct HDMI_CEC_Intf*  HDMI_CEC_Intf pointer.
   \retval 0:success, others: failure.
   */
-  int (*init)(struct HDMI_CEC_Intf* dev, const char* name, int enable);
+  int (*init)(struct HDMI_CEC_Intf* dev, const char* name, int enable, int otpEnabled);
 
   /**
   \brief  destroy HDMI_CEC.
@@ -519,6 +519,9 @@ struct HDMI_CEC_Intf {
 
   int (*isCecSupportted)(struct HDMI_CEC_Intf* dev);
   int (*setCecEnable)(struct HDMI_CEC_Intf* dev, bool enable);
+  /**
+   * set whether one touch play function is enabled.
+   */
   int (*oneTouchPlay)(struct HDMI_CEC_Intf* dev, bool enable);
   int (*injectKeyEvent)(struct HDMI_CEC_Intf* dev, int key);
   int (*getCecEnableStatus)(struct HDMI_CEC_Intf* dev);
@@ -526,6 +529,7 @@ struct HDMI_CEC_Intf {
   int (*setCecStandy)(struct HDMI_CEC_Intf* dev, bool enable);
   int (*setCecMenuLanguage)(struct HDMI_CEC_Intf* dev, const char* lang);
   int (*testCecInterface)(struct HDMI_CEC_Intf* dev);
+  int (*doOneTouchPlay)(struct HDMI_CEC_Intf* dev);
 };
 
 /**
@@ -569,8 +573,8 @@ class HDMICecIntf : public HDMI_CEC_Intf {
     return intf;
   }
 
-  int init(const char* name, int enable) {
-    return HDMI_CEC_Intf::init(this, name, enable);
+  int init(const char* name, int enable, int otpEnabled) {
+    return HDMI_CEC_Intf::init(this, name, enable, otpEnabled);
   }
 
   int destroy() {
