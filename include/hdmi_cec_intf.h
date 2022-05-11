@@ -423,6 +423,12 @@ typedef enum {
   HDMI_CEC_UICMD_DATA = 0x76,
 } hdmi_cec_uicmd_t;
 
+enum {
+    DEVICE_TYPE_TV = 0,
+    DEVICE_TYPE_PLAYBCK = 4,
+    DEVICE_TYPE_AUDIOSYSTEM = 5,
+};
+
 /**HDMI CEC Raw Data struct,please reference  HDMI specification 1.4a*/
 /**CNcomment: HDMI CEC原始数据结构体，请参考HDMI 1.4a协议 */
 typedef struct hdmi_cec_rawdata
@@ -460,10 +466,26 @@ typedef struct {
     int data;
 } cec_app_event_t;
 
+typedef struct {
+    int port_id;
+    int device_type;
+    int vendor_id;
+    int power_status;
+    unsigned char osd_name[CEC_MESSAGE_BODY_MAX_LENGTH - 2];
+    int osd_length;
+} device_info_t;
+
 typedef void (*hdmi_cec_callback)(hdmi_cec_message_t* cmd, void* pdata);
 
 typedef void (*app_event_callback)(cec_app_event_t* event, void* pdata);
 
+typedef struct {
+    void (*onNewActiveSource)(int port, void* pdata);
+    void (*onDeviceAdded)(device_info_t* device, void* pdata);
+    void (*onDeviceRemoved)(device_info_t* device, void* pdata);
+    void (*onDeviceUpdated)(device_info_t* device, void* pdata);
+
+} routing_callback_t;
 
 struct HDMI_CEC_Intf {
   const char* name;
@@ -476,7 +498,7 @@ struct HDMI_CEC_Intf {
   \param[in] struct HDMI_CEC_Intf*  HDMI_CEC_Intf pointer.
   \retval 0:success, others: failure.
   */
-  int (*init)(struct HDMI_CEC_Intf* dev, const char* name, int enable, int otpEnabled);
+  int (*init)(struct HDMI_CEC_Intf* dev, const char* name, int deviceType, int enable, int otpEnabled);
 
   /**
   \brief  destroy HDMI_CEC.
@@ -497,6 +519,8 @@ struct HDMI_CEC_Intf {
 
   int (*setAppCallback)(struct HDMI_CEC_Intf* dev, app_event_callback cec_callback, void* pdata);
   int (*isActive)(struct HDMI_CEC_Intf* dev);
+
+  int (*setRoutingCallback)(struct HDMI_CEC_Intf* dev, routing_callback_t* routing_callback, void* pdata);
 
   /**
   \brief  set hdmi physical address.
@@ -523,13 +547,20 @@ struct HDMI_CEC_Intf {
    * set whether one touch play function is enabled.
    */
   int (*oneTouchPlay)(struct HDMI_CEC_Intf* dev, bool enable);
-  int (*injectKeyEvent)(struct HDMI_CEC_Intf* dev, int key);
   int (*getCecEnableStatus)(struct HDMI_CEC_Intf* dev);
+  //ENG = (0x65 << 16) + (0x6e << 8) + 0x67,  //CEC639-2 English of cec
+  int (*setCecMenuLanguage)(struct HDMI_CEC_Intf* dev, int lang);
   int (*getCecMenuLanguage)(struct HDMI_CEC_Intf* dev);
   int (*setCecStandy)(struct HDMI_CEC_Intf* dev, bool enable);
-  int (*setCecMenuLanguage)(struct HDMI_CEC_Intf* dev, const char* lang);
+
   int (*testCecInterface)(struct HDMI_CEC_Intf* dev);
   int (*doOneTouchPlay)(struct HDMI_CEC_Intf* dev);
+
+
+  int (*portSelect)(struct HDMI_CEC_Intf* dev, int port);
+  int (*sendKeyEvent)(struct HDMI_CEC_Intf* dev, int keycode, bool pressed);
+  int (*setPowerStatus)(struct HDMI_CEC_Intf* dev, bool wake);
+  int (*getDeviceList)(struct HDMI_CEC_Intf* dev, device_info_t* list[]);
 };
 
 /**
@@ -573,8 +604,8 @@ class HDMICecIntf : public HDMI_CEC_Intf {
     return intf;
   }
 
-  int init(const char* name, int enable, int otpEnabled) {
-    return HDMI_CEC_Intf::init(this, name, enable, otpEnabled);
+  int init(const char* name, int deviceType, int enable, int otpEnabled) {
+    return HDMI_CEC_Intf::init(this, name, deviceType, enable, otpEnabled);
   }
 
   int destroy() {
