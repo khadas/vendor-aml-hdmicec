@@ -461,8 +461,16 @@ typedef struct {
   hdmi_cec_operand_t operand;
 } hdmi_cec_message_t;
 
+enum cec_app_event_type {           // value of data:
+  CEC_APP_SOURCE_CHANGED = 1,       // 0: source deactivate, 1: source activate
+  CEC_TV_POWER_CHANGED = 2,         // 0: tv power on, 1: tv power off, 2:tv powering on, 3: tv powering off.
+  CEC_APP_ARC_CONNECT = 3,          // 0: ARC device disconnect, 1: ARC device ready to use
+  CEC_APP_ARC_VOLUME = 4,           // 0: mute, 0~100 normal, -1 invalid
+  CEC_APP_EVENT_MAX
+};
+
 typedef struct {
-    int event;
+    enum cec_app_event_type event;
     int data;
 } cec_app_event_t;
 
@@ -487,10 +495,25 @@ typedef struct {
 
 } routing_callback_t;
 
+/* applicatin call libcec.so sequence:
+* 1. get HDMI_CEC_Intf pointer from libcec.so
+*  struct HDMI_CEC_Intf *intf = NULL;
+*  get_device("CEC", &intf);
+* 2. set one time setting before ->init
+*  intf->enable_arc = FALSE;
+* 3. init cec
+*  intf->init(intf, "amlogic", DEVICE_TYPE_TV, TRUE, TRUE);
+*  intf->setCallback(intf, hdmi_cec_callback, this);
+*  intf->setAppCallback(intf, hdmi_cec_app_callback, this);
+*  intf->setCecMenuLanguage(intf, iso639_2_to_int(menu_language.c_str()));
+*  routing_callback_t rcb = {onNewActiveSource, onDeviceAdded, onDeviceRemoved, onDeviceUpdated};
+*  intf->setRoutingCallback(intf, &rcb, this);
+*/
 struct HDMI_CEC_Intf {
   const char* name;
   int version;  // return the CEC version;
   size_t size;  // sizeof HDMI_CEC_Intf structure.
+  int enable_arc;
 
   /**
   \brief initialize HDMI_CEC hardware
@@ -552,15 +575,18 @@ struct HDMI_CEC_Intf {
   int (*setCecMenuLanguage)(struct HDMI_CEC_Intf* dev, int lang);
   int (*getCecMenuLanguage)(struct HDMI_CEC_Intf* dev);
   int (*setCecStandy)(struct HDMI_CEC_Intf* dev, bool enable);
-
   int (*testCecInterface)(struct HDMI_CEC_Intf* dev);
   int (*doOneTouchPlay)(struct HDMI_CEC_Intf* dev);
-
 
   int (*portSelect)(struct HDMI_CEC_Intf* dev, int port);
   int (*sendKeyEvent)(struct HDMI_CEC_Intf* dev, int keycode, bool pressed);
   int (*setPowerStatus)(struct HDMI_CEC_Intf* dev, bool wake);
   int (*getDeviceList)(struct HDMI_CEC_Intf* dev, device_info_t* list[]);
+
+  // return AVR current volume, or negtive error code
+  int (*getARCVolume)(struct HDMI_CEC_Intf* dev);
+  // enable/disable ARC
+  int (*setARCEnable)(struct HDMI_CEC_Intf* dev, bool enable);
 };
 
 /**
