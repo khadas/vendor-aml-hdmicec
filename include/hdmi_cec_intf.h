@@ -476,6 +476,7 @@ typedef struct {
 
 typedef struct {
     int port_id;
+    int logical_address;
     int device_type;
     int vendor_id;
     int power_status;
