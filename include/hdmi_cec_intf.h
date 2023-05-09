@@ -575,7 +575,7 @@ struct HDMI_CEC_Intf {
   //ENG = (0x65 << 16) + (0x6e << 8) + 0x67,  //CEC639-2 English of cec
   int (*setCecMenuLanguage)(struct HDMI_CEC_Intf* dev, int lang);
   int (*getCecMenuLanguage)(struct HDMI_CEC_Intf* dev);
-  int (*setCecStandy)(struct HDMI_CEC_Intf* dev, bool enable);
+  int (*setCecStandby)(struct HDMI_CEC_Intf* dev, bool enable);
   int (*testCecInterface)(struct HDMI_CEC_Intf* dev);
   int (*doOneTouchPlay)(struct HDMI_CEC_Intf* dev);
 
