@@ -480,7 +480,7 @@ typedef struct {
     int device_type;
     int vendor_id;
     int power_status;
-    unsigned char osd_name[CEC_MESSAGE_BODY_MAX_LENGTH - 2];
+    unsigned char osd_name[CEC_MESSAGE_BODY_MAX_LENGTH - 1];
     int osd_length;
 } device_info_t;
 
