@@ -466,6 +466,7 @@ enum cec_app_event_type {           // value of data:
   CEC_TV_POWER_CHANGED = 2,         // 0: tv power on, 1: tv power off, 2:tv powering on, 3: tv powering off.
   CEC_APP_ARC_CONNECT = 3,          // 0: ARC device disconnect, 1: ARC device ready to use
   CEC_APP_ARC_VOLUME = 4,           // 0: mute, 0~100 normal, -1 invalid
+  CEC_RECEIVE_KEY = 5,              // key value defined in uapi/linux/input-event-codes.h
   CEC_APP_EVENT_MAX
 };
 
