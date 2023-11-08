@@ -589,7 +589,7 @@ struct HDMI_CEC_Intf {
   int (*getARCVolume)(struct HDMI_CEC_Intf* dev);
   // enable/disable ARC
   int (*setARCEnable)(struct HDMI_CEC_Intf* dev, bool enable);
-
+  int (*setEARCEnable)(struct HDMI_CEC_Intf* dev, bool enable);
   int (*setAutoWakeup)(struct HDMI_CEC_Intf* dev, bool enable);
 };
 
