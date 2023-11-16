@@ -591,6 +591,8 @@ struct HDMI_CEC_Intf {
   int (*setARCEnable)(struct HDMI_CEC_Intf* dev, bool enable);
   int (*setEARCEnable)(struct HDMI_CEC_Intf* dev, bool enable);
   int (*setAutoWakeup)(struct HDMI_CEC_Intf* dev, bool enable);
+  int (*setNetflixSupported)(struct HDMI_CEC_Intf* dev, bool supported);
+  int (*setOsdName)(struct HDMI_CEC_Intf* dev, const char* name);
 };
 
 /**
